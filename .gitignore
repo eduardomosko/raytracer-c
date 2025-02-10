@@ -1,0 +1,11 @@
+# build system
+/nob
+/nob.old
+
+# binaries
+/main
+/test
+
+# generated images
+*.ppm
+*.tga
