@@ -9,3 +9,6 @@
 # generated images
 *.ppm
 *.tga
+
+# search ignore
+.ignore
