@@ -5,6 +5,7 @@
 # binaries
 /main
 /test
+/build
 
 # generated images
 *.ppm
