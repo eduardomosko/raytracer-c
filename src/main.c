@@ -8,9 +8,22 @@ typedef struct {
 	vec3_t origin, direction;
 } ray_t;
 
-#define vecmath(expression) ((vec3_t){})
+bool hit_sphere(vec3_t center, f64 radius, ray_t r) {
+	vec3_t oc = vecmath(center - r.origin);
+
+	f64 a = vec3_len2(r.direction);
+	f64 b = -2. * vec3_dot(r.direction, oc);
+	f64 c = vec3_len2(oc) - radius * radius;
+
+	f64 discriminant = b * b - 4 * a * c;
+	return discriminant >= 0;
+}
 
 color_t ray_color(ray_t ray) {
+	if (hit_sphere((vec3_t){0, 0, -1}, 0.5, ray)) {
+		return (color_t){255, 0, 0};
+	}
+
 	vec3_t direction = vec3_norm(ray.direction);
 
 	f64 a = (direction.y + 1.) / 2.;
@@ -18,8 +31,8 @@ color_t ray_color(ray_t ray) {
 	vec3_t white = {1, 1, 1};
 	vec3_t blue = {0.5, 0.7, 1.0};
 
-	f64 ainv = 1. - a;
-	return vec3_to_color(vecmath(white * ainv + blue * a));
+	f64 a_inv = 1. - a;
+	return vec3_to_color(vecmath(white * a_inv + blue * a));
 }
 
 int main(void) {

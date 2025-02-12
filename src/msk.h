@@ -80,6 +80,8 @@ typedef struct {
 	f64 x, y, z;
 } vec3_t;
 
+#define vecmath(expression) ((vec3_t){})
+
 static inline f64* vec3_data(vec3_t* a) {
 	return (f64*)a;
 }
