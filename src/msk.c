@@ -107,6 +107,11 @@ void* allocator_alloc(allocator_t allocator, u64 size) {
 	return out;
 }
 
+void* allocator_ralloc(allocator_t allocator, void* data, u64 size) {
+	allocator.alloc(allocator.state, AR_REALLOC, size, &data);
+	return data;
+}
+
 void allocator_dealloc(allocator_t allocator, void* data) {
 	allocator.alloc(allocator.state, AR_FREE, 0, &data);
 }
@@ -119,6 +124,10 @@ context_t context_default() {
 
 void* alloc(context_t ctx, u64 size) {
 	return allocator_alloc(ctx.allocator, size);
+}
+
+void* ralloc(context_t ctx, void* data, u64 size) {
+	return allocator_ralloc(ctx.allocator, data, size);
 }
 
 void dealloc(context_t ctx, void* data) {

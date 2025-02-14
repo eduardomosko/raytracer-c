@@ -7,7 +7,7 @@
 
 #include "src/msk.h"
 
-#define CC "cc", "-I", "./src"
+#define CC "cc", "-I", "./src", "-Ofast", "-flto", "-fopenmp", "-ftree-vectorize"
 // #define CC "clang", "-O3"
 // #define CC "./tcc", "-L", "../tinycc/", "-I", "../tinycc/include/", "-O3"
 

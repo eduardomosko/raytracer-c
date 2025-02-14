@@ -54,6 +54,7 @@ void		malloc_allocator_alloc(void* state, allocator_request_t request, u64 size,
 allocator_t allocator_malloc_create();
 
 void* allocator_alloc(allocator_t allocator, u64 size);
+void* allocator_ralloc(allocator_t allocator, void* data, u64 size);
 void  allocator_dealloc(allocator_t allocator, void* data);
 
 // :context :ctx
@@ -64,7 +65,42 @@ typedef struct {
 context_t context_default();
 
 void* alloc(context_t ctx, u64 size);
+void* ralloc(context_t ctx, void* data, u64 size);
 void  dealloc(context_t ctx, void* data);
+
+// :view
+#define view_of(type) \
+	struct {          \
+		type* items;  \
+		u64	  count;  \
+	}
+
+// :dinamic_array :darr
+#define darr_of(type)          \
+	struct {                   \
+		type* items;           \
+		u64	  count;           \
+		u64	  cap;             \
+                               \
+		allocator_t allocator; \
+	}
+
+#define darr_append(da, item)                                                                               \
+	do {                                                                                                    \
+		if ((da)->count >= (da)->cap) {                                                                     \
+			(da)->cap = (da)->cap == 0 ? 4 : (da)->cap * 2;                                                 \
+			(da)->items = allocator_ralloc((da)->allocator, (da)->items, (da)->cap * sizeof(*(da)->items)); \
+			if ((da)->items == NULL) {                                                                      \
+				unreachable;                                                                                \
+			}                                                                                               \
+		}                                                                                                   \
+                                                                                                            \
+		(da)->items[(da)->count++] = (item);                                                                \
+	} while (0)
+
+#define darr_free(darr) allocator_dealloc(darr.allocator, darr.items)
+
+#define view_darr(darr) {.items = darr.items, .count = darr.count}
 
 // :error
 typedef enum {
@@ -174,7 +210,6 @@ static inline color_t vec3_to_color(vec3_t a) {
 }
 
 // :image
-
 typedef struct {
 	color_t* data;
 	u64		 w, h;
@@ -194,6 +229,12 @@ error_t	 image_write_tga(image_t* img, int fd);
 #define STR2(str) STR(str)
 #define STR(str) #str
 #define STR_WITH_LEN(str) str, slen(str)
+
+#define unreachable                                                           \
+	do {                                                                      \
+		write(1, STR_WITH_LEN("[UNREACHABLE] " __FILE__ ":" STR2(__LINE__))); \
+		exit(2);                                                              \
+	} while (0)
 
 #define or_fail(message) )) {                                                            \
 		write(1, STR_WITH_LEN("[ERROR] " __FILE__ ":" STR2(__LINE__) " " message "\n")); \
